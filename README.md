@@ -24,6 +24,9 @@ It's because ES8388 is initialized with 9db PGA gain, so you have to use this (0
 es8388_write_reg(ES8388_ADCCONTROL1, 0x00);
 ```
 
+## Settings
+
+You can set up device name, pin code and remote device name in `main/variables.h`.
 
 ## Build and Flash
 

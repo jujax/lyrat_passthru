@@ -44,7 +44,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
-#define CONFIG_BT_REMOTE_NAME "WH-1000XM4"
+#include "variables.h"
 
 #define BT_CONNECT_TIMEOUT 20000
 

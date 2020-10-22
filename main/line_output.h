@@ -44,7 +44,7 @@ void line_out(void)
 
     ESP_LOGI(TAG, "[ 1 ] Init Bluetooth");
     esp_bt_pin_type_t pin_type = ESP_BT_PIN_TYPE_FIXED;
-    esp_bt_pin_code_t pin_code = {'0', '8', '1', '0'};
+    esp_bt_pin_code_t pin_code = CONFIG_BT_PIN;
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_bt_controller_init(&bt_cfg));
@@ -52,7 +52,7 @@ void line_out(void)
     ESP_ERROR_CHECK(esp_bluedroid_init());
     ESP_ERROR_CHECK(esp_bluedroid_enable());
 
-    esp_bt_dev_set_device_name("ESP_SINK_STREAM_DEMO");
+    esp_bt_dev_set_device_name(CONFIG_BT_DEVICE_NAME);
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
     //esp_bt_gap_register_callback(bt_app_gap_cb);
 
