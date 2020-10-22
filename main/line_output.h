@@ -14,12 +14,14 @@ void change_source(
     ESP_LOGE(TAG, "Changing source to %s", source_is_bt ? "Bluetooth" : "Line");
     if (!source_is_bt)
     {
-        //periph_bluetooth_pause(bt_periph);
+        //periph_bluetooth_pause(bt_periph); //TODO fix with a2dp api
         audio_pipeline_breakup_elements(pipeline, bt_stream_reader);
         audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_LINE_IN, AUDIO_HAL_CTRL_START);
         audio_hal_set_volume(board_handle->audio_hal, 100);
         audio_pipeline_relink(pipeline, (const char *[]){"i2s_read", "i2s_write"}, 2);
         audio_pipeline_set_listener(pipeline, evt);
+        ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 1000);
+        ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
     }
     else
     {
@@ -28,7 +30,9 @@ void change_source(
         audio_hal_set_volume(board_handle->audio_hal, 100);
         audio_pipeline_relink(pipeline, (const char *[]){"bt_read", "i2s_write"}, 2);
         audio_pipeline_set_listener(pipeline, evt);
-        //periph_bluetooth_play(bt_periph);
+        //periph_bluetooth_play(bt_periph); //TODO fix with a2dp api
+        ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 8000);
+        ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
     }
     audio_pipeline_run(pipeline);
     audio_pipeline_resume(pipeline);
@@ -50,7 +54,7 @@ void line_out(void)
 
     esp_bt_dev_set_device_name("ESP_SINK_STREAM_DEMO");
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
-    esp_bt_gap_register_callback(bt_app_gap_cb);
+    //esp_bt_gap_register_callback(bt_app_gap_cb);
 
 #if (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 0, 0))
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
@@ -120,6 +124,9 @@ void line_out(void)
 
     ESP_LOGI(TAG, "[ 6 ] Start audio_pipeline");
     audio_pipeline_run(pipeline);
+
+    ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 1000);
+    ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
 
     ESP_LOGI(TAG, "[ 6 ] Listen for all pipeline events");
     while (1)

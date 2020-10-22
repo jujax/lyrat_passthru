@@ -38,6 +38,7 @@
 #include "esp_system.h"
 #include "nvs.h"
 #include "equalizer.h"
+#include "driver/ledc.h"
 
 #include "esp_log.h"
 #include "nvs_flash.h"
@@ -60,6 +61,22 @@ static audio_element_handle_t bt_stream_writer, i2s_stream_writer, bt_stream_rea
 static bool output_is_bt = false;
 static nvs_handle_t my_handle;
 static esp_err_t err;
+
+static ledc_channel_config_t ledc_channel = {
+    .channel = LEDC_CHANNEL_0,
+    .duty = 0,
+    .gpio_num = 22,
+    .speed_mode = LEDC_LOW_SPEED_MODE,
+    .hpoint = 0,
+    .timer_sel = LEDC_TIMER_1
+};
+static ledc_timer_config_t ledc_timer = {
+    .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
+    .freq_hz = 5000,                      // frequency of PWM signal
+    .speed_mode = LEDC_LOW_SPEED_MODE,    // timer mode
+    .timer_num = LEDC_TIMER_1,            // timer index
+    .clk_cfg = LEDC_AUTO_CLK,             // Auto select the source clock
+};
 
 #include "bluetooth_output.h"
 #include "line_output.h"
@@ -103,6 +120,10 @@ void app_main(void)
             printf("Error (%s) reading!\n", esp_err_to_name(err));
         }
     }
+
+    ledc_timer_config(&ledc_timer);
+
+    ledc_channel_config(&ledc_channel);
 
     if (output_is_bt)
         bluetooth_output();
